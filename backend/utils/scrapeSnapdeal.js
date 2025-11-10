@@ -8,15 +8,18 @@ export async function scrapeSnapdeal(query) {
     const { data } = await axios.get(searchURL, {
       headers: {
         "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
         "Accept-Language": "en-US,en;q=0.9",
+        Referer: "https://www.snapdeal.com/",
+        Accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        Connection: "keep-alive",
       },
     });
 
     const $ = cheerio.load(data);
-
-    // Select the first valid product
     const firstProduct = $(".product-tuple-listing").first();
+
     if (!firstProduct.length) {
       return { site: "Snapdeal", error: "No products found" };
     }
@@ -27,23 +30,20 @@ export async function scrapeSnapdeal(query) {
       "Unknown Product";
 
     const link =
-      firstProduct.find(".dp-widget-link").attr("href") ||
-      firstProduct.find("a").attr("href") ||
-      "";
+      "https://www.snapdeal.com" +
+      (firstProduct.find(".dp-widget-link").attr("href") || "");
 
     const image =
       firstProduct.find("img.product-image").attr("src") ||
       firstProduct.find("img").attr("data-src") ||
       "https://via.placeholder.com/150";
 
-    // 🧠 New: More robust price extraction
     let priceText =
       firstProduct.find(".product-price").text().trim() ||
       firstProduct.find(".lfloat.product-price").text().trim() ||
       firstProduct.find("[data-price]").attr("data-price") ||
       "";
 
-    // Clean up “Rs.” or “₹” and commas
     priceText = priceText.replace(/(Rs\.?|₹|\s|,)/g, "").trim();
     const price = priceText ? parseInt(priceText) : null;
 

@@ -11,7 +11,7 @@ export default function App() {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `http://localhost:3000/api/price?query=${query}`
+        `https://price-tracker-402b.onrender.com/api/track?query=${query}`
       );
       setResults(data);
     } catch (error) {
