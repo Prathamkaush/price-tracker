@@ -12,8 +12,17 @@ process.env.PUPPETEER_SKIP_DOWNLOAD = true;
 
 // ✅ Configure CORS properly for your Vercel frontend
 app.use(cors({
-  origin: ["https://pratham-kaushik.vercel.app"], // your frontend domain
-  methods: ["GET", "POST"],
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      "http://localhost:3000",
+      "https://pratham-kaushik.vercel.app"
+    ];
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  }
 }));
 
 // Routes
